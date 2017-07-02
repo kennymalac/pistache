@@ -249,6 +249,27 @@ public:
     { }
 };
 
+class ContentTransferEncoding : public Header {
+public:
+   NAME("Content-Transfer-Encoding")
+
+     ContentTransferEncoding()
+     : value_(ContentTransferEncodingValue::7Bit)
+     { }
+
+    explicit ContentTransferEncoding(TransferEncoding encoding)
+      : ContentTransferEncodingHeader(encoding)
+    { }
+
+    void parseRaw(const char* str, size_t len);
+    void write(std::ostream& os) const;
+
+    ContentTransferEncodingValue value() const { return value_; }
+
+private:
+    ContentTransferEncodingValue value_;
+};
+
 class ContentLength : public Header {
 public:
     NAME("Content-Length");

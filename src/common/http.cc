@@ -327,6 +327,11 @@ namespace Private {
 
         auto cl = message->headers_.tryGet<Header::ContentLength>();
         auto te = message->headers_.tryGet<Header::TransferEncoding>();
+        auto ct = message->headers_.tryGet<Header::ContentType>();
+
+        if (ct) {
+          return parseMultipartContent(cursor, ct);
+        }
 
         if (cl && te)
             raise("Got mutually exclusive ContentLength and TransferEncoding header");
@@ -351,7 +356,7 @@ namespace Private {
 
             // We have an incomplete body, read what we can
             if (available < size) {
-                cursor.advance(available);
+                 cursor.advance(available);
                 message->body_.append(token.rawText(), token.size());
 
                 bytesRead += available;
@@ -443,6 +448,51 @@ namespace Private {
             raise("Unsupported Transfer-Encoding", Code::Not_Implemented);
         }
         return State::Done;
+    }
+
+    State
+    BodyStep::parseMultipartContent(StreamCursor& cursor, const std::shared_ptr<Header::ContentType>& ct) {
+      auto contentType = ct->mime();
+      if (typeid(contentType) == typeid(MIME(Multipart, FormData))) {
+        // This is the beginning of the multipart body
+
+        // std::vector<StreamCursor&> mulipartFileDataCursors;
+        // cursors.push_back(&cursor);
+
+        skip_whitespaces(cursor);
+        if (!match_until(';', cursor) && !match_string(STR("boundary"), cursor) && !match_until('=', cursor)) {
+          raise("Multipart Form data boundary not defined", Code::Bad_Request);
+          return State::Done;
+        }
+
+        auto token = matchValue(cursor);
+        // Boundary value
+        auto value = token.text();
+
+        while (!match_until('--', cursor)) {
+          message->body_.append()
+          // FormData();
+          // FormField({})
+
+          ssize_t fileBufferSize;
+
+          try {
+            auto* tmpFd = tmpfile();
+            do {
+              cursor.advance(available);
+              auto part = chunkData.rawText();
+              std::fwrite(part, sizeof(char), available, tmpFd);
+            } while ()
+          } catch (const std::exception& e) {
+            raise(e.what());
+          }
+        };
+      }
+      else {
+        raise("Content-Type in request body should be multipart form data", Code::Bad_Request)
+      }
+
+      return State::Done;
     }
 
     State

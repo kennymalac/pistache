@@ -231,8 +231,8 @@ CacheControl::write(std::ostream& os) const {
         os << directiveString(d);
         if (hasDelta(d)) {
             auto delta = d.delta();
-            if (delta.count() > 0) {
-                os << "=" << delta.count();
+            if (delta.count() > 0) { 
+               os << "=" << delta.count();
             }
         }
 
@@ -420,6 +420,28 @@ Accept::write(std::ostream& os) const {
 }
 
 void
+ContentTransferEncoding::parseRaw(const char* str, size_t len) {
+  if (!strncmp(str, "base64")) {
+    // 
+  }
+  else if (!strncmp(str, "QUOTED-PRINTABLE")) {
+    //
+  }
+  else if (!strncmp(str, "7BIT"  )) {
+    // 
+  }
+  else if (!strncmp(str, "8BIT"  )) {
+    // 
+  }
+  else if (!strncmp(str, "BINARY")) {
+    // 
+  }
+  else {
+    // 
+  }
+}
+
+void
 EncodingHeader::parseRaw(const char* str, size_t len) {
     // TODO: case-insensitive
     //
@@ -483,6 +505,19 @@ ContentType::parseRaw(const char* str, size_t len)
 void
 ContentType::write(std::ostream& os) const {
     os << mime_.toString();
+}
+
+void
+MultipartContentType::parseRaw(const char* str, size_t len)
+{
+  auto mime = mime_.parseRaw(str, len);
+
+  std::string str(str);
+  auto boundary = std::find(std::begin(str), std::end(str), "boundary=");
+
+  if (boundary != std::end(str)) {
+    boundary = str.substr(boundary)
+  }
 }
 
 } // namespace Header

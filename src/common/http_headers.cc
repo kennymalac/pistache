@@ -25,6 +25,7 @@ RegisterHeader(Allow);
 RegisterHeader(CacheControl);
 RegisterHeader(Connection);
 RegisterHeader(ContentEncoding);
+RegisterHeader(ContentDisposition);
 RegisterHeader(TransferEncoding);
 RegisterHeader(ContentLength);
 RegisterHeader(ContentType);
